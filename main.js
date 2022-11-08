@@ -1,18 +1,16 @@
 const ServerCallerModule = require("./tib-finance/ServerCaller");
-let sessionId = "29dce411-90d9-4933-a3f7-29ae62465e90";
+const express = require('express'); 
+
+let sessionId = "e983da54-7347-465a-b5af-4c79acaff7db";
+
+const app  = express();
 const ServerCaller = new ServerCallerModule.ServerCaller();
+
 ServerCaller.initalize("http://sandboxportal.tib.finance");
 
-// Server config .
-const http = require("http");
-const { cp } = require("fs");
-const hostname = "127.0.0.1";
-const port = 3000;
-
-// helper Class
-
+// helper Class for html Use
+// given a list of object or an object, returns a html table.
 class HtmlHelper {
-  
   SetTableHeader = function (obj) {
     let titles = "";
     let keys = Object.keys(obj);
@@ -24,18 +22,28 @@ class HtmlHelper {
     return `<table border='1' style='text-align: center;'><thead>${titles}</thead><tbody>`;
   };
 
-  SetTableData = function (dataValues) {
-    if(dataValues.length == 0){
-      return "<h1> the given list is empty</h1>"
+  SetListInTable = function (dataValues) {
+    if (dataValues.length == 0) {
+      return "No Items ";
     }
-    
+
     let table = this.SetTableHeader(dataValues[0]);
-    
+
     let values = "";
     dataValues.forEach((elm) => {
       values += "<tr>";
       for (const [key, value] of Object.entries(elm)) {
-        values += `<td>${value}</td>`;
+        if(typeof value === "object"){
+          if(value === null){
+            values += `<td>${value}</td>`
+          }else if(Array.isArray(value)){          
+            values += `<td>${this.SetListInTable(value)}</td>`
+          }else{
+            values += `<td>${this.SetObjectInTable(value)}</td>`
+          }
+        }else{
+          values += `<td>${value}</td>`;
+        }
       }
       values += "</tr>";
     });
@@ -44,54 +52,75 @@ class HtmlHelper {
     table += this.SetTableFooter();
     return table;
   };
-  SetTableFooter = function(){
+
+  SetObjectInTable = function (obj) {
+    let table = this.SetTableHeader(obj);
+
+    let values = "";
+    values += "<tr>";
+    for (const [key, value] of Object.entries(obj)) {
+      if(typeof value === "object"){
+        if(value === null){
+          values += `<td>${value}</td>`
+        }else if(Array.isArray(value)){          
+          values += `<td>${this.SetListInTable(value)}</td>`
+        }else{
+          values += `<td>${this.SetObjectInTable(value)}</td>`
+        }
+      }else{
+        values += `<td>${value}</td>`;
+      }
+      
+
+    }
+    values += "</tr>";
+    table += values;
+
+    table += this.SetTableFooter();
+    return table;
+  };
+
+  SetTableFooter = function () {
     return "</tbody></table>";
-  }
+  };
 }
 
-// init the HtmlHelper
-let helper = new HtmlHelper();
-const server = http.createServer((req, res) => {
-  if (req.url === "/") {
-    ServerCaller.createSession(
-      "4671a4c9-4367-4934-bb23-a8886cebd028",
-      "sdkdev",
-      "Test123!"
-    )
+// end Points 
+app.get('/getcustomer', function(req, res){
+  ServerCaller.getCustomer("bf199033-53a1-48cd-8f17-04254d026ecd", sessionId)
       .then((result) => {
-        sessionId = result.SessionId;
-        res.end(`<h1>${sessionId}</h1>`);
+        console.log(result)
+        res.json(result.Customer);
       })
-      .catch((err) => console.log(err));
-  }
+      .catch((err) => {
+        console.log(err);
+        res.end("something.");
+      });
+}); 
 
-  // list customers EndPoint.
-  if (req.url === "/listCustomers") {
-    ServerCaller.listCustomers(
-      "038D7171-BF23-4F3C-9E78-CF6342624FC7",
-      sessionId
-    )
-      .then((result) => {
-        let _html = helper.SetTableData(result.Customers);
-        res.end(_html);
-      })
-      .catch((err) => console.log(err));
-  }
+app.get('/listcustomers', (req, res) => {
+  ServerCaller.listCustomers(
+          "038D7171-BF23-4F3C-9E78-CF6342624FC7",
+          sessionId
+        )
+          .then((result) => {
+            res.json(result.Customers);
+          })
+          .catch((err) => console.log(err));
+})
 
-  // list of Services .
-  if (req.url === "/listServices") {
-    ServerCaller.listServices(
-      "EA34F2C6-36B2-4513-973E-A2C91E7985D3",
-      sessionId
-    ).then((result) => {
-      let _html = helper.SetTableData(result.Services);
-      res.end(_html);
-    })
-    .catch(err => console.log(err));
-  }
-});
+app.get('/listservices', (req, res) => {
+  ServerCaller.listServices(
+          "EA34F2C6-36B2-4513-973E-A2C91E7985D3",
+          sessionId
+        )
+          .then((result) => {
+            res.json(result.Services);
+          })
+          .catch((err) => console.log(err));
+})
 
 // Start the Server.
-server.listen(port, hostname, () => {
-  console.log(`Server running at http://${hostname}:${port}/`);
-});
+app.listen(3000, function (req, res){
+  console.log(`Server Running at post 300`)
+})
