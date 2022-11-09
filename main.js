@@ -1,7 +1,7 @@
 const ServerCallerModule = require("./tib-finance/ServerCaller");
 const express = require('express'); 
 
-let sessionId = "e983da54-7347-465a-b5af-4c79acaff7db";
+let sessionId = "";
 
 const app  = express();
 const ServerCaller = new ServerCallerModule.ServerCaller();
@@ -84,6 +84,19 @@ class HtmlHelper {
     return "</tbody></table>";
   };
 }
+app.get('/createsession', (req, res) => {
+  ServerCaller.createSession(
+          "4671a4c9-4367-4934-bb23-a8886cebd028",
+          "sdkdev", 
+          "Test123!"
+        )
+          .then((result) => {
+            
+            sessionId = result.SessionId
+            res.json(result);
+          })
+          .catch((err) => console.log(err));
+})
 
 // end Points 
 app.get('/getcustomer', function(req, res){
