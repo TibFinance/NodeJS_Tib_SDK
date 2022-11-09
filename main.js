@@ -8,87 +8,12 @@ const ServerCaller = new ServerCallerModule.ServerCaller();
 
 ServerCaller.initalize("http://sandboxportal.tib.finance");
 
-// helper Class for html Use
-// given a list of object or an object, returns a html table.
-class HtmlHelper {
-  SetTableHeader = function (obj) {
-    let titles = "";
-    let keys = Object.keys(obj);
 
-    keys.forEach((elem) => {
-      titles += `<th>${elem}</th>`;
-    });
-
-    return `<table border='1' style='text-align: center;'><thead>${titles}</thead><tbody>`;
-  };
-
-  SetListInTable = function (dataValues) {
-    if (dataValues.length == 0) {
-      return "No Items ";
-    }
-
-    let table = this.SetTableHeader(dataValues[0]);
-
-    let values = "";
-    dataValues.forEach((elm) => {
-      values += "<tr>";
-      for (const [key, value] of Object.entries(elm)) {
-        if(typeof value === "object"){
-          if(value === null){
-            values += `<td>${value}</td>`
-          }else if(Array.isArray(value)){          
-            values += `<td>${this.SetListInTable(value)}</td>`
-          }else{
-            values += `<td>${this.SetObjectInTable(value)}</td>`
-          }
-        }else{
-          values += `<td>${value}</td>`;
-        }
-      }
-      values += "</tr>";
-    });
-    table += values;
-
-    table += this.SetTableFooter();
-    return table;
-  };
-
-  SetObjectInTable = function (obj) {
-    let table = this.SetTableHeader(obj);
-
-    let values = "";
-    values += "<tr>";
-    for (const [key, value] of Object.entries(obj)) {
-      if(typeof value === "object"){
-        if(value === null){
-          values += `<td>${value}</td>`
-        }else if(Array.isArray(value)){          
-          values += `<td>${this.SetListInTable(value)}</td>`
-        }else{
-          values += `<td>${this.SetObjectInTable(value)}</td>`
-        }
-      }else{
-        values += `<td>${value}</td>`;
-      }
-      
-
-    }
-    values += "</tr>";
-    table += values;
-
-    table += this.SetTableFooter();
-    return table;
-  };
-
-  SetTableFooter = function () {
-    return "</tbody></table>";
-  };
-}
 app.get('/createsession', (req, res) => {
   ServerCaller.createSession(
-          "4671a4c9-4367-4934-bb23-a8886cebd028",
-          "sdkdev", 
-          "Test123!"
+          "clientid",
+          "username", 
+          "password"
         )
           .then((result) => {
             
