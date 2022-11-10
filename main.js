@@ -15,17 +15,15 @@ class ResultHandler {
       this.errorMessages = "";
   }
   Handle(resObj, expectedResult, message) {
-
       if (!resObj.HasError) {
           if(Array.isArray(expectedResult)){
-            // do Something When result is an array ; 
-            this.content = (expectedResult)
+            // do Something When result is an array 
+            this.content = expectedResult
           }else{
               // in the case of null show desired message.
               if(expectedResult == null || expectedResult == undefined){
                   this.content = message
               }else if(typeof expectedResult == "object"){
-                console.log(expectedResult)
                 // do Something when result is not an array.
                 this.content = expectedResult
               }else{
@@ -54,8 +52,7 @@ class ResultHandler {
   }
   getErrors(){
     return this.errorMessages; 
-  }
-  
+  }  
 }
 
 let responseHandler = new ResultHandler();
@@ -63,6 +60,7 @@ let responseHandler = new ResultHandler();
 app.get('/', (req, res) => {
   res.end("main")
 })
+
 app.get('/createsession', (req, res) => {
   ServerCaller.createSession(
           "clientId",
@@ -84,7 +82,6 @@ app.get('/createsession', (req, res) => {
           .catch((err) => console.log(err));
 })
 
-// end Points 
 app.get('/getcustomer', function(req, res){
   ServerCaller.getCustomer("bf199033-53a1-48cd-8f17-04254d026ecd", sessionId)
       .then((result) => {
