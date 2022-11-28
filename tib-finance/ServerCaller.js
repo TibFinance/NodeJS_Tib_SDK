@@ -726,6 +726,21 @@ class ServerCaller {
 
     return TibFinance.CryptoCaller.performCall(methodName, data);
   }
+  
+  setClientDefaultServiceSettings(
+    clienntId,
+    serviceFeeSettinngs,
+    sessionToken
+  ) {
+    var methodName = "/Data/SetClientDefaultServiceSettings";
+    var data = {
+      ClientId: clientId,
+      ServicefeeSettings: serviceFeeSettinngs,
+      SessionToken: sessionToken,
+    };
+
+    return TibFinance.CryptoCaller.performCall(methodName, data);
+  }
 
   createSubClient(name, language, SessionToken) {
     var methodName = "/Data/CreateSubClient";
